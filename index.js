@@ -50,12 +50,29 @@ const client = new MongoClient(uri, {
         deprecationErrors: true,
     }
 });
-
+const userCollection = client.db("harmony").collection("userDB");
 
 
 app.get('/', (req, res) => {
     res.send('brother is using harmony')
 })
+
+// users
+app.post('/users', async (req, res) => {
+    const user = req.body;
+    const filter = { email: user.email };
+    const isExist = await userCollection.findOne(filter);
+    if (isExist) {
+        return res.send('user already exist');
+    }
+    const result = await userCollection.insertOne(user);
+    res.send(result)
+
+})
+
+
+
+
 
 app.post('/jwt', async (req, res) => {
     const user = req.body;
