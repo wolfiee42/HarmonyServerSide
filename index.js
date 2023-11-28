@@ -1,7 +1,7 @@
 const express = require('express');
 require('dotenv').config()
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 var jwt = require('jsonwebtoken');
 
 const app = express();
@@ -67,7 +67,7 @@ app.get('/', (req, res) => {
 })
 
 // users
-app.post('/users',verifyToken, verifyAdmin, async (req, res) => {
+app.post('/users', async (req, res) => {
     const user = req.body;
     const filter = { email: user.email };
     const isExist = await userCollection.findOne(filter);
@@ -99,6 +99,19 @@ app.get('/users/admin/:email', verifyToken, async (req, res) => {
         admin = user?.role === 'admin';
     };
     res.send({ admin })
+})
+
+// promoting to admin
+app.patch('/users/admin/:id', async (req, res) => {
+    const id = req.params.id;
+    const filter = { _id: new ObjectId(id) };
+    const updatedDoc = {
+        $set: {
+            role: "admin",
+        }
+    }
+    const result = await userCollection.updateOne(filter, updatedDoc);
+    res.send(result);
 })
 
 
