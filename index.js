@@ -82,6 +82,15 @@ app.post('/users', async (req, res) => {
 app.get('/users', async (req, res) => {
     const result = await userCollection.find().toArray();
     res.send(result);
+});
+app.get(`/users/:email`, async (req, res) => {
+    const email = req.params.email;
+    // if (email !== req.decoded.email) {
+    //     res.status(403).send("access not given");
+    // }
+    const filter = { email: email };
+    const result = await userCollection.findOne(filter);
+    res.send(result)
 })
 
 
