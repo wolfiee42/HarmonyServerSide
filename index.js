@@ -60,6 +60,7 @@ const client = new MongoClient(uri, {
     }
 });
 const userCollection = client.db("harmony").collection("userDB");
+const postCollection = client.db("harmony").collection("postDB");
 
 
 app.get('/', (req, res) => {
@@ -123,6 +124,15 @@ app.patch('/users/admin/:id', async (req, res) => {
     res.send(result);
 })
 
+
+
+
+// post
+app.post('/posts', async(req, res)=>{
+    const post = req.body;
+    const result = await postCollection.insertOne(post);
+    res.send();
+})
 
 
 app.post('/jwt', async (req, res) => {
