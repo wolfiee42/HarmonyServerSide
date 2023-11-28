@@ -128,11 +128,24 @@ app.patch('/users/admin/:id', async (req, res) => {
 
 
 // post
-app.post('/posts', async(req, res)=>{
+app.post('/posts', async (req, res) => {
     const post = req.body;
+    // const email = post.authorEmail;
+    // const filter = { authorEmail: email }
     const result = await postCollection.insertOne(post);
-    res.send();
+    // const updateOperation = {
+    //     $inc: { postCount: 1 }
+    // };
+    // const result2 = await postCollection.updateOne(filter, updateOperation)
+    res.send(result);
 })
+app.get('/posts/:email', async (req, res) => {
+    const email = req.params.email;
+    const filter = { authorEmail: email };
+    const result = await postCollection.find(filter).toArray();
+    res.send(result)
+})
+
 
 
 app.post('/jwt', async (req, res) => {
