@@ -14,7 +14,7 @@ app.use(cors());
 app.use(express.json())
 
 const verifyToken = (req, res, next) => {
-    console.log(req.headers.authorization);
+    // console.log(req.headers.authorization);
     if (!req.headers.authorization) {
         res.status(401).send({ message: "unauthorized access" })
     }
@@ -28,7 +28,16 @@ const verifyToken = (req, res, next) => {
     })
 }
 
-
+const verifyAdmin = async (req, res, next) => {
+    const email = req.decoded.email;
+    const filter = { email: email };
+    const user = await userCollection.findOne(filter);
+    const isAdmin = user?.role === 'admin';
+    if (!isAdmin) {
+        return res.status(403).send({ message: "forbidden access" });
+    }
+    next();
+}
 
 
 const dbConnet = async () => {
@@ -58,7 +67,7 @@ app.get('/', (req, res) => {
 })
 
 // users
-app.post('/users', async (req, res) => {
+app.post('/users',verifyToken, verifyAdmin, async (req, res) => {
     const user = req.body;
     const filter = { email: user.email };
     const isExist = await userCollection.findOne(filter);
@@ -70,11 +79,27 @@ app.post('/users', async (req, res) => {
 
 })
 
-app.get('/users', async(req, res)=>{
+app.get('/users', async (req, res) => {
     const result = await userCollection.find().toArray();
     res.send(result);
 })
 
+
+
+// Checking admin
+app.get('/users/admin/:email', verifyToken, async (req, res) => {
+    const email = req.params.email;
+    // if (email !== req.decoded.email) {
+    //     res.status(403).status({ message: "access rejected" });
+    // };
+    const filter = { email: email };
+    const user = await userCollection.findOne(filter);
+    let admin = {};
+    if (user) {
+        admin = user?.role === 'admin';
+    };
+    res.send({ admin })
+})
 
 
 
