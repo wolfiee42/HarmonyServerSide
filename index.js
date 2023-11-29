@@ -61,6 +61,7 @@ const client = new MongoClient(uri, {
 });
 const userCollection = client.db("harmony").collection("userDB");
 const postCollection = client.db("harmony").collection("postDB");
+const commentsCollection = client.db("harmony").collection("commentsDB");
 
 
 app.get('/', (req, res) => {
@@ -91,7 +92,7 @@ app.get(`/users/:email`, async (req, res) => {
     // }
     const filter = { email: email };
     const result = await userCollection.findOne(filter);
-    res.send(result)
+    res.send(result);
 })
 
 
@@ -141,24 +142,50 @@ app.post('/posts', async (req, res) => {
 })
 
 app.get('/posts', async (req, res) => {
+    const email = req.query.email;
+    const filter = { authorEmail: email };
     const page = parseInt(req.query.page);
     const size = parseInt(req.query.size);
+    const result22 = await postCollection.find(filter).toArray();
     const result = await postCollection.find().sort({ time: -1 }).skip(page * size).limit(size).toArray();
+    res.send({ result, result22 });
+})
+
+app.get('/posts/:id', async (req, res) => {
+    const id = req.params.id;
+    const filter = { _id: new ObjectId(id) };
+    const result = await postCollection.findOne(filter);
+    res.send(result);
+})
+
+app.delete('/posts/:id', async (req, res) => {
+    const id = req.params.id;
+    const filter = { _id: new ObjectId(id) };
+    const result = await postCollection.deleteOne(filter);
     res.send(result);
 })
 
 
-app.get('/posts/:email', async (req, res) => {
-    const email = req.params.email;
-    const filter = { authorEmail: email };
-    const result = await postCollection.find(filter).toArray();
-    res.send(result)
-})
+// app.get('/posts', async (req, res) => {
+//     const email = req.query.email;
+//     const filter = { authorEmail: email };
+//     const result = await postCollection.find(filter).toArray();
+//     res.send(result)
+// })
 
 app.get('/postcount', async (req, res) => {
     const result = await postCollection.estimatedDocumentCount()
     res.send({ result });
 })
+
+// comments
+
+app.post('/comments', async (req, res) => {
+    const comment = req.body;
+    const result = await commentsCollection.insertOne(comment);
+    res.send(result);
+})
+
 
 
 
