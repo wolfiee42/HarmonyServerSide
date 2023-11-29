@@ -141,7 +141,9 @@ app.post('/posts', async (req, res) => {
 })
 
 app.get('/posts', async (req, res) => {
-    const result = await postCollection.find().toArray();
+    const page = parseInt(req.query.page);
+    const size = parseInt(req.query.size);
+    const result = await postCollection.find().sort({ time: -1 }).skip(page * size).limit(size).toArray();
     res.send(result);
 })
 
@@ -153,7 +155,10 @@ app.get('/posts/:email', async (req, res) => {
     res.send(result)
 })
 
-
+app.get('/postcount', async (req, res) => {
+    const result = await postCollection.estimatedDocumentCount()
+    res.send({ result });
+})
 
 
 
