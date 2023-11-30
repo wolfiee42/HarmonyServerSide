@@ -147,7 +147,14 @@ app.get('/posts', async (req, res) => {
     const filter = { authorEmail: email };
     const page = parseInt(req.query.page);
     const size = parseInt(req.query.size);
-    const result = await postCollection.find().sort({ time: -1 }).skip(page * size).limit(size).toArray();
+    const search = req.query;
+    const query = {
+        posttag: {
+            $regex: search.search,
+            $options: "i"
+        }
+    }
+    const result = await postCollection.find(query).sort({ time: -1 }).skip(page * size).limit(size).toArray();
     const result22 = await postCollection.find(filter).toArray();
     const result44 = await postCollection.find(filter).sort({ time: -1 }).limit(3).toArray();
     res.send({ result, result22, result44 });
