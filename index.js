@@ -63,6 +63,7 @@ const client = new MongoClient(uri, {
 const userCollection = client.db("harmony").collection("userDB");
 const postCollection = client.db("harmony").collection("postDB");
 const commentsCollection = client.db("harmony").collection("commentsDB");
+const announcementCollection = client.db("harmony").collection("announcementDB");
 
 
 app.get('/', (req, res) => {
@@ -194,6 +195,26 @@ app.post('/comments', async (req, res) => {
     const result = await commentsCollection.insertOne(comment);
     res.send(result);
 })
+
+// announcement
+app.post('/announcement', async (req, res) => {
+    const announcement = req.body;
+    const result = await announcementCollection.insertOne(announcement);
+    res.send(result);
+})
+
+app.get('/announcement', async (req, res) => {
+    const result = await announcementCollection.find().toArray();
+    res.send(result);
+})
+
+app.get('/announcementcount', async (req, res) => {
+    const result = await announcementCollection.estimatedDocumentCount();
+    res.send({ result })
+})
+
+
+
 
 
 
