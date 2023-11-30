@@ -87,6 +87,9 @@ app.get('/users', async (req, res) => {
     const result = await userCollection.find().toArray();
     res.send(result);
 });
+
+
+
 app.get(`/users/:email`, async (req, res) => {
     const email = req.params.email;
     // if (email !== req.decoded.email) {
@@ -127,7 +130,10 @@ app.patch('/users/admin/:id', async (req, res) => {
     res.send(result);
 })
 
-
+app.get('/usercount', async (req, res) => {
+    const result = await userCollection.estimatedDocumentCount();
+    res.send({result})
+})
 
 
 // post
@@ -151,7 +157,7 @@ app.get('/posts', async (req, res) => {
     const search = req.query;
     const query = {
         posttag: {
-            $regex: search.search,
+            $regex: `${search.search}`,
             $options: "i"
         }
     }
@@ -194,6 +200,20 @@ app.post('/comments', async (req, res) => {
     const comment = req.body;
     const result = await commentsCollection.insertOne(comment);
     res.send(result);
+})
+app.get('/comments', async (req, res) => {
+    const result = await commentsCollection.find().toArray();
+    res.send(result);
+})
+app.get('/comments/:title', async (req, res) => {
+    const title = req.params.title;
+    const filter = { title: title };
+    const result = await commentsCollection.find(filter).toArray();
+    res.send(result);
+})
+app.get('/commnetcount', async (req, res) => {
+    const result = await commentsCollection.estimatedDocumentCount();
+    res.send({ result })
 })
 
 // announcement
