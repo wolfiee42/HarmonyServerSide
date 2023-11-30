@@ -4,6 +4,7 @@ const cors = require('cors');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 var jwt = require('jsonwebtoken');
 
+const stripe = require('stripe')(process.env.SECRET_KEY);
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -187,6 +188,40 @@ app.post('/comments', async (req, res) => {
     res.send(result);
 })
 
+
+
+//payment
+app.post('/create-payment-intent', async (req, res) => {
+    const { price } = req.body;
+
+    // because stripe count money in pennies, we have to make
+    // the cash in pennies
+    const ammount = parseInt(price * 100);
+
+
+    //here  await stripe.paymentIntents.create is to hit stripes 
+    //server so the payment can be monitored by the admin
+    const paymentIntent = await stripe.paymentIntents.create({
+        amount: ammount,
+        currency: 'usd',
+        payment_method_types: ['card']//this line is also can not fondin example
+    });
+    res.send({
+        clientSecret: paymentIntent.client_secret
+    })
+})
+
+app.patch('/users/:email', async (req, res) => {
+    const email = req.params.email;
+    const filter = { email: email };
+    const updatedDoc = {
+        $set: {
+            badge: "gold",
+        }
+    }
+    const result = await userCollection.updateOne(filter, updatedDoc);
+    res.send(result);
+})
 
 
 
